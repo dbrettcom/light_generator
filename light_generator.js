@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 const Light = require('./models/sensor');
+const mqtt = require('mqtt');
+const client = mqtt.connect("mqtt://broker.hivemq.com:1883");
+
+var topic = "/light"
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://dbrett:11Mongo11@sit729.to56xpg.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -34,6 +38,11 @@ function sensortest() {
         timer: random_timer,
         time: currentTime, 
       });
+
+      if (random_timer < 20) // If the timer is about to run out
+      {
+        client.publish(topic, JSON.stringify({ brightness: random_brightness, timer: random_timer })); // Publish Alert to broker
+      }
     }
 
     const jsonString = JSON.stringify(light);
